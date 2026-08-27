@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <rect width="120" height="120" rx="24" fill="#0d0d0d" />
+  <g transform="translate(-12, 10)">
+    <path
+      stroke="#f5f5f5"
+      stroke-width="13"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      d="M 62 84 L 62 16 L 44 16 A 15 15 0 0 0 44 46 L 62 46"
+      fill="none"
+    />
+    <path
+      stroke="#f5f5f5"
+      stroke-width="13"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      d="M 52 46 L 28 84"
+      fill="none"
+    />
+    <path stroke="#22c55e" stroke-width="13" stroke-linecap="round" d="M 74 88 L 74 24" fill="none" />
+    <path
+      fill="#22c55e"
+      fill-rule="evenodd"
+      clip-rule="evenodd"
+      d="M92 8 116 32 92 56 68 32Z M92 22 106 32 92 42 82 32Z"
+    />
+  </g>
+</svg>
