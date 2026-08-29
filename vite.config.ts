@@ -6,6 +6,13 @@ import { defineConfig } from 'vite'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  // Em dev, encaminha /api para o backend local (evita CORS: mesma origem).
+  server: {
+    proxy: {
+      '/api': { target: 'http://127.0.0.1:8080', changeOrigin: true },
+      '/health': { target: 'http://127.0.0.1:8080', changeOrigin: true },
+    },
+  },
   resolve: {
     alias: {
       '@': path.resolve(import.meta.dirname, './src'),
