@@ -1,0 +1,106 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "item_metrics",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "active", "order": "ASCENDING" },
+        { "fieldPath": "liquidityScore", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "item_metrics",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "active", "order": "ASCENDING" },
+        { "fieldPath": "lowestResalePrice", "order": "ASCENDING" },
+        { "fieldPath": "liquidityScore", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "item_metrics",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "active", "order": "ASCENDING" },
+        { "fieldPath": "salesPerDay7d", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "item_metrics",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "active", "order": "ASCENDING" },
+        { "fieldPath": "rapDiscountPct", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "limiteds",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "active", "order": "ASCENDING" },
+        { "fieldPath": "tier", "order": "ASCENDING" },
+        { "fieldPath": "resellersCheckedAt", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "limiteds",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "active", "order": "ASCENDING" },
+        { "fieldPath": "dailyCheckedAt", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "limiteds",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "needsMapping", "order": "ASCENDING" },
+        { "fieldPath": "mappingPriority", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "snapshots",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "t", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "daily",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "date", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "alerts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "read", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "collector_runs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "collector", "order": "ASCENDING" },
+        { "fieldPath": "startedAt", "order": "DESCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": [
+    {
+      "collectionGroup": "snapshots",
+      "fieldPath": "expiresAt",
+      "ttl": true,
+      "indexes": []
+    },
+    {
+      "collectionGroup": "collector_runs",
+      "fieldPath": "expiresAt",
+      "ttl": true,
+      "indexes": []
+    }
+  ]
+}

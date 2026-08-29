@@ -1,0 +1,45 @@
+rules_version = '2';
+
+// RoProfit — regras do Firestore.
+//
+// Princípio deste módulo: o cliente NUNCA lê nem escreve as coleções de Market
+// Intelligence direto. Todo acesso passa pela API admin, que verifica a custom
+// claim no servidor e registra em admin_audit. O Admin SDK ignora estas regras,
+// então os coletores continuam escrevendo normalmente.
+//
+// Esconder o menu no frontend não é segurança. Isto é.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // ── Perfil do usuário ───────────────────────────────────────────────────
+    // Único lugar onde o cliente lê algo diretamente. O campo `role` é gravado
+    // apenas pelo Admin SDK: se o cliente pudesse escrevê-lo, viraria escalação
+    // de privilégio de um PATCH só.
+    match /users/{uid} {
+      allow read: if isSignedIn() && request.auth.uid == uid;
+      allow create, update: if isSignedIn()
+        && request.auth.uid == uid
+        && !request.resource.data.diff(resource.data).affectedKeys()
+             .hasAny(['role', 'createdAt']);
+      allow delete: if false;
+    }
+
+    // ── Market Intelligence: fechado para o cliente ─────────────────────────
+    match /limiteds/{doc=**}        { allow read, write: if false; }
+    match /item_metrics/{doc}       { allow read, write: if false; }
+    match /market_snapshots/{doc}   { allow read, write: if false; }
+    match /alerts/{doc}             { allow read, write: if false; }
+    match /alert_rules/{doc}        { allow read, write: if false; }
+    match /collector_runs/{doc}     { allow read, write: if false; }
+    match /collector_state/{doc}    { allow read, write: if false; }
+    match /admin_audit/{doc}        { allow read, write: if false; }
+    match /admin_settings/{doc}     { allow read, write: if false; }
+
+    // Nega qualquer coleção não declarada acima.
+    match /{document=**} { allow read, write: if false; }
+  }
+}

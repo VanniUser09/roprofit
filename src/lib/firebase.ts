@@ -1,5 +1,7 @@
 import { initializeApp } from "firebase/app"
 import { getAuth } from "firebase/auth"
+import { getFirestore } from "firebase/firestore"
+import { getFunctions } from "firebase/functions"
 
 const app = initializeApp({
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -11,5 +13,10 @@ const app = initializeApp({
 })
 
 const auth = getAuth(app)
+const db = getFirestore(app)
 
-export { auth }
+// Mesma região das Functions. Chamar a região errada devolve CORS, não 404,
+// e o erro fica difícil de ler no console.
+const functions = getFunctions(app, "southamerica-east1")
+
+export { app, auth, db, functions }

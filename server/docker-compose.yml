@@ -1,0 +1,42 @@
+# Sobe o backend + Postgres com um comando. É o que roda na VPS.
+#
+#   docker compose up -d
+#
+# O Postgres guarda os dados num volume nomeado, então "docker compose down" e
+# um "up" de novo NÃO perdem o histórico. Para apagar de verdade: down -v.
+services:
+  db:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: roprofit
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?defina DB_PASSWORD no arquivo .env}
+      POSTGRES_DB: roprofit
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    # Sem "ports": o Postgres só é acessível de dentro da rede do compose, não
+    # exposto à internet. Uma superfície de ataque a menos.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U roprofit"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  server:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://roprofit:${DB_PASSWORD}@db:5432/roprofit
+      FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID:?defina no .env}
+      ADMIN_BOOTSTRAP_EMAILS: ${ADMIN_BOOTSTRAP_EMAILS:-}
+      PORT: 8080
+      WARMUP: "true"
+    ports:
+      # Exposto só na interface local da VPS; o Caddy (abaixo) faz o HTTPS.
+      - "127.0.0.1:8080:8080"
+
+volumes:
+  pgdata:

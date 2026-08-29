@@ -32,3 +32,11 @@ material
 *.sln
 *.sw?
 .env.local
+
+# Firebase — emuladores e credenciais
+emulator.log
+*-debug.log
+.firebase
+functions/lib
+functions/node_modules
+service-account*.json

@@ -75,18 +75,23 @@ function logout() {
   return signOut(auth)
 }
 
+type Role = "admin" | null
+
 const AuthContext = React.createContext<{
   user: User | null
+  role: Role
   loading: boolean
   refreshUser: () => void
 }>({
   user: null,
+  role: null,
   loading: true,
   refreshUser: () => {},
 })
 
 function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = React.useState<User | null>(null)
+  const [role, setRole] = React.useState<Role>(null)
   const [loading, setLoading] = React.useState(true)
   // updateProfile muta a instância do User sem disparar onAuthStateChanged,
   // então o nome novo só aparece se forçarmos um re-render.
@@ -105,15 +110,61 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
 
     return onAuthStateChanged(auth, (next) => {
       setUser(next)
-      setLoading(false)
+
+      if (!next) {
+        setRole(null)
+        setLoading(false)
+        return
+      }
+
+      // O papel de admin vive no Postgres do backend (migração para stack
+      // gratuita), não mais numa custom claim do token. Perguntamos ao /api/me
+      // quem é o usuário. Vantagem: revogar um admin tem efeito imediato, sem
+      // esperar o token renovar.
+      fetchRole(next)
+        .then(setRole)
+        .catch(() => setRole(null))
+        .finally(() => setLoading(false))
     })
   }, [])
 
-  return <AuthContext.Provider value={{ user, loading, refreshUser }}>{children}</AuthContext.Provider>
+  return (
+    <AuthContext.Provider value={{ user, role, loading, refreshUser }}>{children}</AuthContext.Provider>
+  )
 }
 
 function useAuth() {
   return React.useContext(AuthContext)
+}
+
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "/api"
+
+/**
+ * Pergunta ao backend qual o papel do usuário.
+ *
+ * O papel mora no Postgres, então esta é a fonte de verdade. Um 404/erro de
+ * rede é tratado como "não admin" — o pior caso é esconder o menu de alguém que
+ * deveria vê-lo, nunca o contrário, e a barreira real continua no backend.
+ */
+async function fetchRole(user: User): Promise<Role> {
+  try {
+    const token = await user.getIdToken()
+    const response = await fetch(`${API_BASE}/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    if (!response.ok) return null
+    const body = (await response.json()) as { role?: string }
+    return body.role === "admin" ? "admin" : null
+  } catch {
+    return null
+  }
+}
+
+/** Reconsulta o papel — usado após uma promoção, para atualizar o menu. */
+async function refreshRole(): Promise<Role> {
+  const current = auth.currentUser
+  if (!current) return null
+  return fetchRole(current)
 }
 
 export {
@@ -123,8 +174,9 @@ export {
   resetPassword,
   sendEmailLink,
   signInWithPassword,
+  refreshRole,
   signInWithProvider,
   signUpWithPassword,
   useAuth,
 }
-export type { SocialProvider }
+export type { Role, SocialProvider }
